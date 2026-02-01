@@ -152,8 +152,6 @@ public class EventRequestDetailView extends StandardDetailView<EventRequest> {
         usersGrid.setItems(userSelections);
     }
 
-    @Subscribe("openQr")
-    public void openQr()
 
     @Subscribe
     public void onBeforeSave(BeforeSaveEvent event) {

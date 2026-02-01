@@ -60,7 +60,6 @@
 
         </formLayout>
         <hbox id="detailActions">
-            <button id="openQr" action="openQr" text="Показать Qr-код"/>
             <button id="saveAndCloseButton" action="saveAction"/>
             <button id="closeButton" action="closeAction"/>
         </hbox>
