@@ -6,13 +6,18 @@ import com.company.eventqrapplication.entity.User;
 import com.company.eventqrapplication.service.EventCodeGenerator;
 import com.company.eventqrapplication.service.EventQrCodeService;
 import com.company.eventqrapplication.view.main.MainView;
+import com.vaadin.flow.component.ClickEvent;
 import com.vaadin.flow.component.checkbox.Checkbox;
+import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.html.Image;
 import com.vaadin.flow.component.html.Span;
+import com.vaadin.flow.component.orderedlayout.FlexComponent;
+import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.server.StreamResource;
 import io.jmix.core.DataManager;
+import io.jmix.flowui.Notifications;
 import io.jmix.flowui.kit.component.button.JmixButton;
 import io.jmix.flowui.view.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -43,8 +48,8 @@ public class EventRequestDetailView extends StandardDetailView<EventRequest> {
     @ViewComponent
     private Grid<UserSelection> usersGrid;
 
-    @ViewComponent
-    private JmixButton openQr;
+    @Autowired
+    private Notifications notifications;
 
     @Subscribe
     public void onInitEntity(InitEntityEvent<EventRequest> event) {
@@ -109,49 +114,27 @@ public class EventRequestDetailView extends StandardDetailView<EventRequest> {
                 .all()
                 .list();
 
-        List<User> selectedUsers = req.getParticipants() == null
+        List<EventParticipant> participants = req.getParticipants() == null
                 ? List.of()
-                : req.getParticipants()
-                .stream()
-                .map(EventParticipant::getUser)
-                .toList();
+                : req.getParticipants();
 
         userSelections = allUsers.stream()
-                .map(u -> new UserSelection(u, selectedUsers.contains(u)))
-                .toList();
+                .map(u -> {
+                    EventParticipant ep = participants.stream()
+                            .filter(p -> p.getUser().equals(u))
+                            .findFirst()
+                            .orElse(null);
 
-        usersGrid.addItemClickListener(e -> {
-            UserSelection selected = e.getItem();
-            selected.setSelected(!selected.isSelected());
-            usersGrid.getDataProvider().refreshItem(selected);
-        });
-
-        usersGrid.addComponentColumn(us -> {
-                    if (us.getQrCode() == null) {
-                        return new Span("—");
+                    UserSelection us = new UserSelection(u, ep != null);
+                    if (ep != null) {
+                        us.setQrCode(ep.getQrCode());
                     }
-
-                    Image image =
-                            new Image();
-
-                    image.setSrc(
-                            new StreamResource(
-                                    "qr.png",
-                                    () -> new ByteArrayInputStream(us.getQrCode())
-                            )
-                    );
-
-                    image.setWidth("80px");
-                    image.setHeight("80px");
-
-                    return image;
+                    return us;
                 })
-                .setHeader("QR-код")
-                .setAutoWidth(true);
+                .toList();
 
         usersGrid.setItems(userSelections);
     }
-
 
     @Subscribe
     public void onBeforeSave(BeforeSaveEvent event) {
@@ -180,5 +163,53 @@ public class EventRequestDetailView extends StandardDetailView<EventRequest> {
         }
         usersGrid.getDataProvider().refreshAll();
 
+    }
+
+    @Subscribe(id = "openQr", subject = "clickListener")
+    public void onOpenQrClick(final ClickEvent<JmixButton> event) {
+        UserSelection selected = usersGrid.asSingleSelect().getValue();
+
+        if (selected == null) {
+            notifications.create("Выберите участника")
+                    .withType(Notifications.Type.WARNING)
+                    .show();
+            return;
+        }
+
+        if (selected.getQrCode() == null) {
+            notifications.create("QR-код для этого участника ещё не создан")
+                    .withType(Notifications.Type.WARNING)
+                    .show();
+            return;
+        }
+
+        showQrDialog(selected);
+
+    }
+
+    private void showQrDialog(UserSelection userSelection) {
+
+        StreamResource resource = new StreamResource(
+                "qr.png",
+                () -> new ByteArrayInputStream(userSelection.getQrCode())
+        );
+
+        Image image = new Image(resource, "QR-код");
+        image.setWidth("250px");
+        image.setHeight("250px");
+
+        VerticalLayout layout = new VerticalLayout(
+                new Span(userSelection.getLastName() + " " +
+                        userSelection.getFirstName()),
+                image
+        );
+        layout.setAlignItems(FlexComponent.Alignment.CENTER);
+        layout.setPadding(true);
+
+        Dialog dialog = new Dialog();
+        dialog.add(layout);
+        dialog.setCloseOnEsc(true);
+        dialog.setCloseOnOutsideClick(true);
+        dialog.open();
     }
 }
