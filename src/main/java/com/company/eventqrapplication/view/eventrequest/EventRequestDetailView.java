@@ -4,6 +4,7 @@ import com.company.eventqrapplication.entity.EventParticipant;
 import com.company.eventqrapplication.entity.EventRequest;
 import com.company.eventqrapplication.entity.User;
 import com.company.eventqrapplication.service.EventCodeGenerator;
+import com.company.eventqrapplication.service.EventEmailService;
 import com.company.eventqrapplication.service.EventQrCodeService;
 import com.company.eventqrapplication.view.main.MainView;
 import com.vaadin.flow.component.ClickEvent;
@@ -50,6 +51,9 @@ public class EventRequestDetailView extends StandardDetailView<EventRequest> {
 
     @Autowired
     private Notifications notifications;
+
+    @Autowired
+    private EventEmailService emailService;
 
     @Subscribe
     public void onInitEntity(InitEntityEvent<EventRequest> event) {
@@ -159,8 +163,14 @@ public class EventRequestDetailView extends StandardDetailView<EventRequest> {
 
                 req.getParticipants().add(ep);
             }
-            System.out.println(us.getQrCode() != null ? 1 : 0);
         }
+
+        if (req.getParticipants() != null) {
+            for (EventParticipant participant : req.getParticipants()) {
+                emailService.sendEmailWithQr(participant);
+            }
+        }
+
         usersGrid.getDataProvider().refreshAll();
 
     }
