@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                      http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd"
+        objectQuotingStrategy="QUOTE_ONLY_RESERVED_WORDS">
+    <changeSet id="1" author="eqa">
+        <addColumn tableName="EQA_EVENT_PARTICIPANT">
+            <column name="EVENT_REQUEST_ID" type="UUID"/>
+        </addColumn>
+    </changeSet>
+    <changeSet id="2" author="eqa">
+        <createIndex indexName="IDX_EQA_EVENT_PARTICIPANT_EVENT_REQUEST" tableName="EQA_EVENT_PARTICIPANT">
+            <column name="EVENT_REQUEST_ID"/>
+        </createIndex>
+
+        <addForeignKeyConstraint baseColumnNames="EVENT_REQUEST_ID" baseTableName="EQA_EVENT_PARTICIPANT"
+                                 constraintName="FK_EQA_EVENT_PARTICIPANT_ON_EVENT_REQUEST" referencedColumnNames="ID"
+                                 referencedTableName="EQA_EVENT_REQUEST"/>
+    </changeSet>
+</databaseChangeLog>

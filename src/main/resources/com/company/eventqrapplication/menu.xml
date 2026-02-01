@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<menu-config xmlns="http://jmix.io/schema/flowui/menu">
+
+    <menu id="application" title="msg://com.company.eventqrapplication/menu.application.title" opened="true">
+        <item view="eqa_User.list" title="msg://com.company.eventqrapplication.view.user/UserListView.title"/>
+        <item view="eqa_EventRequest.list"
+              title="msg://com.company.eventqrapplication.view.eventrequest/eventRequestListView.title"/>
+        <item view="eqa_Hall.list" title="msg://com.company.eventqrapplication.view.hall/hallListView.title"/>
+    </menu>
+
+</menu-config>

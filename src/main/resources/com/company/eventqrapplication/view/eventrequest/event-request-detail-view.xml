@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<view xmlns="http://jmix.io/schema/flowui/view"
+      title="msg://eventRequestDetailView.title"
+      focusComponent="form">
+    <data>
+        <instance id="eventRequestDc"
+                  class="com.company.eventqrapplication.entity.EventRequest">
+            <fetchPlan extends="_base">
+                <property name="eventHall" fetchPlan="_base"/>
+            </fetchPlan>
+            <loader id="eventRequestDl"/>
+        </instance>
+        <collection id="participantsDc"
+                    class="com.company.eventqrapplication.entity.EventParticipant">
+            <fetchPlan extends="_base"/>
+        </collection>
+        <collection id="hallsDc" class="com.company.eventqrapplication.entity.Hall">
+            <fetchPlan extends="_base"/>
+            <loader id="hallsDl" readOnly="true">
+                <query>
+                    <![CDATA[select e from eqa_Hall e]]>
+                </query>
+            </loader>
+        </collection>
+    </data>
+    <facets>
+        <dataLoadCoordinator auto="true"/>
+    </facets>
+    <actions>
+        <action id="saveAction" type="detail_saveClose"/>
+        <action id="closeAction" type="detail_close"/>
+
+    </actions>
+    <layout>
+        <formLayout id="form" dataContainer="eventRequestDc">
+
+            <responsiveSteps>
+                <responsiveStep minWidth="0" columns="1"/>
+                <responsiveStep minWidth="40em" columns="2"/>
+            </responsiveSteps>
+            <textField id="eventCodeField" property="eventCode" readOnly="true"/>
+            <textField id="eventNameField" property="eventName"/>
+            <entityComboBox id="hallsComboBox" itemsContainer="hallsDc" dataContainer="eventRequestDc"
+                            property="eventHall">
+                <actions>
+                    <action id="entityClear" type="entity_clear"/>
+                    <action id="entityLookup" type="entity_lookup"/>
+                    <action id="entityOpen" type="entity_open"/>
+                </actions>
+            </entityComboBox>
+
+            <datePicker id="eventDateField" property="eventDate"/>
+            <timePicker id="timeStartField" property="timeStart"/>
+            <timePicker id="timeEndField" property="timeEnd"/>
+
+            <label value="Участники заявки" />
+
+            <component id="usersGrid"
+                       class="com.vaadin.flow.component.grid.Grid" />
+
+        </formLayout>
+        <hbox id="detailActions">
+            <button id="openQr" action="openQr" text="Показать Qr-код"/>
+            <button id="saveAndCloseButton" action="saveAction"/>
+            <button id="closeButton" action="closeAction"/>
+        </hbox>
+    </layout>
+</view>

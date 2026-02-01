@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<view xmlns="http://jmix.io/schema/flowui/view"
+      xmlns:c="http://jmix.io/schema/flowui/jpql-condition"
+      title="msg://eventRequestListView.title"
+      focusComponent="eventRequestsDataGrid">
+    <data>
+        <collection id="eventRequestsDc"
+                    class="com.company.eventqrapplication.entity.EventRequest">
+            <fetchPlan extends="_base"/>
+            <loader id="eventRequestsDl" readOnly="true">
+                <query>
+                    <![CDATA[select e from eqa_EventRequest e]]>
+                </query>
+            </loader>
+        </collection>
+    </data>
+    <facets>
+        <dataLoadCoordinator auto="true"/>
+        <urlQueryParameters>
+            <genericFilter component="genericFilter"/>
+            <pagination component="pagination"/>
+        </urlQueryParameters>
+    </facets>
+    <actions>
+        <action id="selectAction" type="lookup_select"/>
+        <action id="discardAction" type="lookup_discard"/>
+    </actions>
+    <layout>
+        <genericFilter id="genericFilter"
+                       dataLoader="eventRequestsDl">
+            <properties include=".*"/>
+        </genericFilter>
+        <hbox id="buttonsPanel" classNames="buttons-panel">
+            <button id="createButton" action="eventRequestsDataGrid.createAction"/>
+            <button id="editButton" action="eventRequestsDataGrid.editAction"/>
+            <button id="removeButton" action="eventRequestsDataGrid.removeAction"/>
+            <simplePagination id="pagination" dataLoader="eventRequestsDl"/>
+        </hbox>
+        <dataGrid id="eventRequestsDataGrid"
+                  width="100%"
+                  minHeight="20em"
+                  dataContainer="eventRequestsDc"
+                  columnReorderingAllowed="true">
+            <actions>
+                <action id="createAction" type="list_create"/>
+                <action id="editAction" type="list_edit"/>
+                <action id="removeAction" type="list_remove"/>
+            </actions>
+            <columns resizable="true">
+                <column property="eventCode"/>
+                <column property="eventName"/>
+                <column property="eventHall"/>
+                <column property="eventDate"/>
+                <column property="timeStart"/>
+                <column property="timeEnd"/>
+            </columns>
+        </dataGrid>
+        <hbox id="lookupActions" visible="false">
+            <button id="selectButton" action="selectAction"/>
+            <button id="discardButton" action="discardAction"/>
+        </hbox>
+    </layout>
+</view>
